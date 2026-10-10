@@ -37,6 +37,7 @@ model User {
 
   products   Product[]
   complaints Complaint[]
+  technician Technician?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -61,18 +62,35 @@ model Product {
   updatedAt DateTime @updatedAt
 }
 
+model Technician {
+  id             Int     @id @default(autoincrement())
+  userId         Int     @unique
+  employeeId     String? @unique
+  specialization String?
+  availability   Boolean @default(true)
+  rating         Float   @default(0)
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  complaints Complaint[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Complaint {
   id              Int               @id @default(autoincrement())
   complaintNumber String            @unique
   customerId      Int
   productId       Int
+  technicianId    Int?
   title           String
   description     String
   priority        ComplaintPriority @default(MEDIUM)
   status          ComplaintStatus   @default(REGISTERED)
 
-  customer User    @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  product  Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer   User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  technician Technician? @relation(fields: [technicianId], references: [id])
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
