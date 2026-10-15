@@ -40,3 +40,23 @@ export const getMyJobs = async (req,res,next)=>{try{
   const complaints=await prisma.complaint.findMany({where:{technicianId:tech.id},include:{product:true,customer:{select:{id:true,name:true,phone:true,email:true}}},orderBy:{createdAt:"desc"}});
   res.json({success:true,count:complaints.length,complaints});
 }catch(e){next(e)}};
+
+
+// Admin list: customer/product context and assigned technician, without password hashes.
+export const listServiceComplaints = async (req, res, next) => {
+  try {
+    const complaints = await prisma.complaint.findMany({
+      include: {
+        product: true,
+        customer: { select: { id: true, name: true, email: true, phone: true } },
+        technician: {
+          include: { user: { select: { id: true, name: true, email: true, phone: true } } },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return res.json({ success: true, count: complaints.length, complaints });
+  } catch (error) {
+    next(error);
+  }
+};
